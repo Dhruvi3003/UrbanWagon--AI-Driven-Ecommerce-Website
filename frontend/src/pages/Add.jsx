@@ -21,7 +21,8 @@ function Add() {
   const [price, setPrice] = useState("");
   const [subCategory, setSubCategory] = useState("TopWear");
   const [bestseller, setBestSeller] = useState(false);
-  const [sizes, setSizes] = useState("M");
+  // const [sizes, setSizes] = useState("M");
+  const [sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(false);
   let  serverUrl  = "http://127.0.0.1:8000"
   // const { fetchProducts } = useContext(shopDataContext);
