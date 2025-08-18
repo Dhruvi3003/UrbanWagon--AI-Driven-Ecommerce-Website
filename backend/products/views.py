@@ -91,3 +91,51 @@ class RemoveProductView(APIView):
             return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateProductView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk)
+            # Update product fields
+            product.name = request.data.get("name", product.name)
+            product.description = request.data.get("description", product.description)
+            product.category = request.data.get("category", product.category)
+            product.sub_category = request.data.get("sub_category", product.sub_category)
+            product.price = request.data.get("price", product.price)
+            product.best_seller = request.data.get("best_seller", str(product.best_seller)).lower() in ['true', '1']
+            product.save()
+
+            sizes = request.data.getlist("size")
+
+            # Get old variants before deleting
+            old_variants = {v.size: v for v in ProductVariant.objects.filter(product=product)}
+
+            # Remove old variants
+            ProductVariant.objects.filter(product=product).delete()
+
+            # For each size, try to get the corresponding image from FILES or fallback to old variant's image
+            for size in sizes:
+                old_variant = old_variants.get(size)
+                # Try to get images for this size from FILES (if you upload per-size images, use image1_{size}, etc.)
+                # But your frontend sends only one image1/image2/image3/image4 for all sizes, so fallback logic:
+                image1 = request.FILES.get("image1") or (old_variant.image1 if old_variant else None)
+                image2 = request.FILES.get("image2") or (old_variant.image2 if old_variant else None)
+                image3 = request.FILES.get("image3") or (old_variant.image3 if old_variant else None)
+                image4 = request.FILES.get("image4") or (old_variant.image4 if old_variant else None)
+                ProductVariant.objects.create(
+                    product=product,
+                    size=size,
+                    image1=image1,
+                    image2=image2,
+                    image3=image3,
+                    image4=image4,
+                )
+
+            return Response({"message": "Product updated successfully."}, status=status.HTTP_200_OK)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(e)
+            return Response({"error": "Something went wrong."}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Nav from "../component/Nav";
 import Sidebar from "../component/Sidebar";
 import upload from "../assets/upload image.jpg";
@@ -21,10 +21,10 @@ function Add() {
   const [price, setPrice] = useState("");
   const [subCategory, setSubCategory] = useState("TopWear");
   const [bestseller, setBestSeller] = useState(false);
-  // const [sizes, setSizes] = useState("M");
   const [sizes, setSizes] = useState([]);
   const [loading, setLoading] = useState(false);
-  let  serverUrl  = "http://127.0.0.1:8000"
+  const [editId, setEditId] = useState(null); // <-- Add this
+  let serverUrl = "http://127.0.0.1:8000";
   // const { fetchProducts } = useContext(shopDataContext);
 
   const handleAddProduct = async (e) => {
@@ -39,8 +39,7 @@ function Add() {
 
       console.log(sizes);
       console.log(price);
-      
-      
+
       let formData = new FormData();
       formData.append("name", name);
       formData.append("description", description);
@@ -54,18 +53,37 @@ function Add() {
       formData.append("image3", image3);
       formData.append("image4", image4);
 
-      let result = await axios.post(
-        serverUrl + "/api/products/add/",
-        formData,
-        { withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data"
+      let result;
+      if (editId) {
+        // Update existing product
+        result = await axios.patch(
+          `${serverUrl}/api/products/update/${editId}/`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           }
-         }
-      );
+        );
+      } else {
+        // Add new product
+        result = await axios.post(
+          serverUrl + "/api/products/add/",
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      }
 
       console.log(result.data);
-      toast.success("Add Product Successfully");
+      toast.success(
+        editId ? "Product Updated Successfully" : "Product Added Successfully"
+      );
       setLoading(false);
 
       if (result.data) {
@@ -83,13 +101,63 @@ function Add() {
         setCategory("Men");
         setSubCategory("TopWear");
         setSizes([]);
+        setEditId(null); // Reset editId after update/add
       }
     } catch (error) {
       console.log(error);
       setLoading(false);
-      toast.error("Add Product Failed");
+      toast.error("Product operation failed");
     }
   };
+
+  // Restore product info from localStorage if editing
+  useEffect(() => {
+    const editProduct = localStorage.getItem("editProduct");
+    if (editProduct) {
+      try {
+        const product = JSON.parse(editProduct);
+        console.log("PPPPP:",product);
+
+        setEditId(product.id || null); // <-- Store id for update
+        setName(product.name || "");
+        setDescription(product.description || "");
+        setCategory(product.category || "Men");
+        setSubCategory(product.sub_category || "TopWear");
+        setPrice(product.price || "");
+        setBestSeller(product.best_seller || false);
+        // Set sizes from variants if available
+        if (Array.isArray(product.variants)) {
+          setSizes(product.variants.map((v) => v.size));
+          // Set images as URLs for preview (cannot set as File objects)
+          setImage1(
+            product.variants[0]?.image1
+              ? `${serverUrl}/${product.variants[0].image1}`
+              : null
+          );
+          setImage2(
+            product.variants[0]?.image2
+              ? `${serverUrl}/${product.variants[0].image2}`
+              : null
+          );
+          setImage3(
+            product.variants[0]?.image3
+              ? `${serverUrl}/${product.variants[0].image3}`
+              : null
+          );
+          setImage4(
+            product.variants[0]?.image4
+              ? `${serverUrl}/${product.variants[0].image4}`
+              : null
+          );
+        }
+        // Remove editProduct from localStorage after loading
+        localStorage.removeItem("editProduct");
+      } catch (e) {
+        // If parsing fails, just ignore
+      }
+    }
+  }, []);
+
   return (
     <div className="w-[100vw] min-h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] text-[white] overflow-x-hidden relative">
       <NavAdmin />
@@ -114,7 +182,13 @@ function Add() {
                 className=" w-[65px] h-[65px] md:w-[100px] md:h-[100px] cursor-pointer hover:border-[#46d1f7]"
               >
                 <img
-                  src={!image1 ? upload : URL.createObjectURL(image1)}
+                  src={
+                    !image1
+                      ? upload
+                      : typeof image1 === "string"
+                      ? image1
+                      : URL.createObjectURL(image1)
+                  }
                   alt=""
                   className="w-[80%] h-[80%] rounded-lg shadow-2xl hover:border-[#1d1d1d] border-[2px]"
                 />
@@ -123,7 +197,7 @@ function Add() {
                   id="image1"
                   hidden
                   onChange={(e) => setImage1(e.target.files[0])}
-                  required
+                  required={!image1}
                 />
               </label>
               <label
@@ -131,7 +205,13 @@ function Add() {
                 className=" w-[65px] h-[65px] md:w-[100px] md:h-[100px] cursor-pointer hover:border-[#46d1f7]"
               >
                 <img
-                  src={!image2 ? upload : URL.createObjectURL(image2)}
+                  src={
+                    !image2
+                      ? upload
+                      : typeof image2 === "string"
+                      ? image2
+                      : URL.createObjectURL(image2)
+                  }
                   alt=""
                   className="w-[80%] h-[80%] rounded-lg shadow-2xl hover:border-[#1d1d1d] border-[2px]"
                 />
@@ -140,7 +220,7 @@ function Add() {
                   id="image2"
                   hidden
                   onChange={(e) => setImage2(e.target.files[0])}
-                  required
+                  required={!image2}
                 />
               </label>
               <label
@@ -148,7 +228,13 @@ function Add() {
                 className=" w-[65px] h-[65px] md:w-[100px] md:h-[100px] cursor-pointer hover:border-[#46d1f7]"
               >
                 <img
-                  src={!image3 ? upload : URL.createObjectURL(image3)}
+                  src={
+                    !image3
+                      ? upload
+                      : typeof image3 === "string"
+                      ? image3
+                      : URL.createObjectURL(image3)
+                  }
                   alt=""
                   className="w-[80%] h-[80%] rounded-lg shadow-2xl hover:border-[#1d1d1d] border-[2px]"
                 />
@@ -157,7 +243,7 @@ function Add() {
                   id="image3"
                   hidden
                   onChange={(e) => setImage3(e.target.files[0])}
-                  required
+                  required={!image3}
                 />
               </label>
               <label
@@ -165,7 +251,13 @@ function Add() {
                 className=" w-[65px] h-[65px] md:w-[100px] md:h-[100px] cursor-pointer hover:border-[#46d1f7]"
               >
                 <img
-                  src={!image4 ? upload : URL.createObjectURL(image4)}
+                  src={
+                    !image4
+                      ? upload
+                      : typeof image4 === "string"
+                      ? image4
+                      : URL.createObjectURL(image4)
+                  }
                   alt=""
                   className="w-[80%] h-[80%] rounded-lg shadow-2xl hover:border-[#1d1d1d] border-[2px]"
                 />
@@ -174,7 +266,7 @@ function Add() {
                   id="image4"
                   hidden
                   onChange={(e) => setImage4(e.target.files[0])}
-                  required
+                  required={!image4}
                 />
               </label>
             </div>
@@ -237,7 +329,7 @@ function Add() {
                 <option value="TopWear">Top Wear</option>
                 <option value="BottomWear">Bottom Wear</option>
                 <option value="WinterWear">Winter Wear</option>
-                <option value="Combo">Outfit Set</option>
+                <option value="Combo">Outfit</option>
               </select>
             </div>
           </div>

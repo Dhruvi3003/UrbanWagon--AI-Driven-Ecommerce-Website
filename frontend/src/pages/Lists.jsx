@@ -4,10 +4,12 @@ import Sidebar from "../component/Sidebar";
 // import { authDataContext } from '../context/AuthContextAdmin'
 import axios from "axios";
 import NavAdmin from "../component/NavAdmin";
+import { useNavigate } from "react-router-dom";
 
 function Lists() {
   let [list, setList] = useState([]);
   let serverUrl = "http://127.0.0.1:8000";
+  const navigate = useNavigate();
 
   const fetchList = async () => {
     try {
@@ -81,13 +83,22 @@ function Lists() {
                     ))}
                   </div> */}
                 </div>
-                <div className="w-[10%] h-[100%] bg-transparent flex items-center justify-center">
+                <div className="w-[10%] h-[100%] bg-transparent flex flex-col items-center justify-center gap-2">
                   <span
                     className="w-[35px] h-[30%] flex items-center justify-center rounded-md md:hover:bg-red-300 md:hover:text-black cursor-pointer"
                     onClick={() => removeList(item.id)}
                   >
                     X
                   </span>
+                  <button
+                    className="w-[60px] h-[30px] mt-2 bg-blue-400 text-black rounded-md text-sm hover:bg-blue-600 hover:text-white transition"
+                    onClick={() => {
+                      localStorage.setItem("editProduct", JSON.stringify(item));
+                      navigate(`/add`);
+                    }}
+                  >
+                    Edit
+                  </button>
                 </div>
               </div>
             ))
