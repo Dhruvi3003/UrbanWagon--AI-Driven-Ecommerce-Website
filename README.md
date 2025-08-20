@@ -54,8 +54,8 @@ A **full-stack e-commerce web application** built with **React (frontend)**, **D
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/<your-username>/<your-repo-name>.git
-cd <your-repo-name>
+git clone https://github.com/Dhruvi3003/UrbanWagon--AI-Driven-Ecommerce-Website.git
+cd UrbanWagon--AI-Driven-Ecommerce-Website
 ```
 
 ### 2️⃣ Install dependencies
@@ -67,7 +67,8 @@ npm install
 Backend:
 ```bash
 cd backend
-npm install
+pip install -r requirements.txt
+python manage.py migrate
 ```
 
 ### 3️⃣ Setup environment variables
@@ -81,11 +82,12 @@ JWT_SECRET=your_secret_key
 ### 4️⃣ Run the app
 Frontend:
 ```bash
-npm start
+npm run dev
 ```
 Backend:
 ```bash
-npm run dev
+python manage.py runserver
+
 ```
 
 ---
