@@ -19,8 +19,10 @@ function NavAdmin() {
       });
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      toast.success("Logout Successfully");
+      // toast.success("Logout Successfully");
       window.location.href = "/login"; 
+      toast.success("Logout Successfully");
+
     } catch (error) {
       toast.error("Logout Failed");
     }

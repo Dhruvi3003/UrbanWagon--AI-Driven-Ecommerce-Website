@@ -16,18 +16,23 @@ import Order from "./pages/Order";
 import NotFound from "./pages/NotFound";
 import Ai from "./component/Ai";
 import HomeAdmin from "./pages/HomeAdmin";
-import Add from "./pages/Add"
+import Add from "./pages/Add";
 import Lists from "./pages/Lists";
 import Orders from "./pages/Orders";
-import {ToastContainer} from "react-toastify"
+import { ToastContainer } from "react-toastify";
 import NavAdmin from "./component/NavAdmin";
 
 function App() {
   let { userData } = useContext(userDataContext);
   let location = useLocation();
+
+  // check if we are on login/signup
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/signup";
+
   return (
     <>
-      {userData && userData.role === "admin" ? <NavAdmin/> : <Nav />}
+      {userData && userData.role === "admin" ? <NavAdmin /> : <Nav />}
       <Routes>
         <Route
           path="/login"
@@ -51,7 +56,11 @@ function App() {
           path="/"
           element={
             userData ? (
-              userData.role === "admin" ? <HomeAdmin/> : <Home />
+              userData.role === "admin" ? (
+                <HomeAdmin />
+              ) : (
+                <Home />
+              )
             ) : (
               <Navigate to="/login" state={{ from: location.pathname }} />
             )
@@ -101,6 +110,7 @@ function App() {
             )
           }
         />
+
         <Route
           path="/productdetail/:productId"
           element={
@@ -111,6 +121,7 @@ function App() {
             )
           }
         />
+
         <Route
           path="/cart"
           element={
@@ -121,6 +132,7 @@ function App() {
             )
           }
         />
+
         <Route
           path="/placeorder"
           element={
@@ -131,6 +143,7 @@ function App() {
             )
           }
         />
+
         <Route
           path="/order"
           element={
@@ -141,13 +154,19 @@ function App() {
             )
           }
         />
-        <Route path='/add' element={<Add/>}/>
-        <Route path='/lists' element={<Lists/>}/>
-        <Route path='/orders' element={<Orders/>}/>
+
+        {/* Admin-only routes */}
+        <Route path="/add" element={<Add />} />
+        <Route path="/lists" element={<Lists />} />
+        <Route path="/orders" element={<Orders />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Ai/>
-      <ToastContainer/>
+
+      {/* ✅ Show AI only if not admin and not on login/signup */}
+      {userData?.role !== "admin" && !isAuthPage && <Ai />}
+
+      <ToastContainer />
     </>
   );
 }

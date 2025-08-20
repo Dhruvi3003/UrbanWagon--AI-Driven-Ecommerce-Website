@@ -12,6 +12,7 @@ import { IoMdHome } from "react-icons/io";
 import { BiCollection } from "react-icons/bi";
 import { MdContacts } from "react-icons/md";
 import { shopDataContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
 
 function Nav() {
   let { getCurrentUser, userData } = useContext(userDataContext);
@@ -23,22 +24,29 @@ function Nav() {
 
   const handleLogout = async () => {
     try {
-      const result = await axios.get(serverUrl + "/api/accounts/logout", {
+      await axios.get(serverUrl + "/api/accounts/logout", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      // Remove tokens from localStorage
+
+      // Remove tokens
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+
+      // Clear context state directly
+      getCurrentUser(null); // <-- Make sure your context allows setting userData to null
+
       toast.success("Logout Successfully");
-      getCurrentUser();
-      navigate("/login");
+
+      // Redirect immediately
+      navigate("/login", { replace: true });
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <div className="w-[100vw] h-[70px] bg-[#ecfafaec] z-10 fixed top-0 flex  items-center justify-between px-[30px] shadow-md shadow-black ">
       <div className="w-[20%] lg:w-[30%] flex items-center justify-start   gap-[10px] ">
@@ -147,7 +155,7 @@ function Nav() {
                   setShowProfile(false);
                 }}
               >
-                LogOut
+                Logout
               </li>
             )}
             <li
