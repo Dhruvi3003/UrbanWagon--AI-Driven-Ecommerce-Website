@@ -107,17 +107,6 @@ function ShopContext({ children }) {
   };
 
   const getCartCount = () => {
-    // let totalCount = 0;
-    // for (const items in cartItem) {
-    //   for (const item in cartItem[items]) {
-    //     try {
-    //       if (cartItem[items][item] > 0) {
-    //         totalCount += cartItem[items][item];
-    //       }
-    //     } catch (error) {}
-    //   }
-    // }
-    // return totalCount;
     return cartItem.length;
   };
 

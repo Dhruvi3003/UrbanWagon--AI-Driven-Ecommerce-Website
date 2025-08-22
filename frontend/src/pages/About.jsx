@@ -2,6 +2,7 @@ import React from 'react'
 import Title from '../component/Title'
 import about from '../assets/about.png'
 import NewLetterBox from '../component/NewLetterBox'
+import Footer from '../component/Footer'
 
 function About() {
   return (
@@ -47,6 +48,9 @@ function About() {
       </div>
       <div className="animate-fadeIn">
         <NewLetterBox />
+      </div>
+      <div className="animate-fadeIn delay-300">
+        <Footer />
       </div>
       <style>{`
         @keyframes fadeIn {

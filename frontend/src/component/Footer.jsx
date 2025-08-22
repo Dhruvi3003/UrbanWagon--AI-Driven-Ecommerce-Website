@@ -31,16 +31,16 @@ function Footer() {
             </p>
           </div>
           <ul className="flex flex-col gap-1 mt-1">
-            <li className="text-[15px] text-[#1e2223] hidden md:block cursor-pointer">
+            <li className="text-[15px] text-[#1e2223] hidden md:block">
               Home
             </li>
-            <li className="text-[15px] text-[#1e2223] cursor-pointer ">
+            <li className="text-[15px] text-[#1e2223]">
               About us
             </li>
-            <li className="text-[15px] text-[#1e2223] hidden md:block cursor-pointer">
+            <li className="text-[15px] text-[#1e2223] hidden md:block">
               Delivery
             </li>
-            <li className="text-[15px] text-[#1e2223] cursor-pointer">
+            <li className="text-[15px] text-[#1e2223]">
               Privacy Policy
             </li>
           </ul>
